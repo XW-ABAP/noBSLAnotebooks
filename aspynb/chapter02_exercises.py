@@ -14,10 +14,6 @@ def cells():
     '''
     '''
 
-
-    '''
-    '''
-
     '''
     ## Definitions
     '''

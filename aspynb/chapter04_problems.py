@@ -116,7 +116,8 @@ def cells():
 
     v = Vector([3,   4,  1])
     normal = Vector([2,   -1,  4])
-    D=4
+    D = 4
+    
     # point on P closest to the origin
     alpha = D/normal.norm()**2
     p_closest = alpha*normal

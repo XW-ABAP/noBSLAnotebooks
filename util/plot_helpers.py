@@ -24,7 +24,7 @@ def plot_vec(vec, at=[0,0,0], color='k'):
     or a python list.
     """
     if len(vec) == 3:
-        ax = plt.gca(projection='3d')
+        ax = gca3d()
         ax.set_aspect("auto")
         vec_x, vec_y, vec_z = float(vec[0]), float(vec[1]), float(vec[2])
         at_x, at_y, at_z = float(at[0]), float(at[1]), float(at[2])
@@ -52,7 +52,8 @@ def plot_vecs(*args):
     """
     COLORS = ['k', 'b', 'g', 'r', 'c', 'm']
     for i, vec in enumerate(args):
-        plot_vec(vec, color=COLORS[i%len(COLORS)])
+        plot_vec(vec, color=COLORS[i % len(COLORS)])
+
 
 
 def plot_line(dir_vec, point, color=None):
@@ -60,7 +61,7 @@ def plot_line(dir_vec, point, color=None):
     Plots the line with direction vector `dir_vec` passing though `point`.
     """
     if len(dir_vec) == 3:
-        ax = plt.gca(projection='3d')
+        ax = gca3d()
         ax.set_aspect("auto")
         dir_vec_x = float(dir_vec[0])
         dir_vec_y = float(dir_vec[1])
@@ -94,7 +95,7 @@ def plot_plane(normal, d, color=None, xrange=[-5,5], yrange=[-5,5]):
     If normal is a 2-vector, plots a line (2D plot).
     """
     if len(normal) == 3:
-        ax = plt.gca(projection='3d')
+        ax = gca3d()
         ax.set_aspect("auto")
         normal_x = float(normal[0])
         normal_y = float(normal[1])
@@ -152,44 +153,74 @@ def plot_augmat(AUG):
         print('plot_augmat supports only lines and planes.')
 
 
+
 # IMPLEMENTATION DETAILS
 ################################################################################
 
 class Arrow3D(FancyArrowPatch):
     """
     A 3D arrow used to represent vectors in 3D.
+    xs, ys, zs are lists/tuples of length 2: [x_start, x_end], etc.
     """
-    
+
     def __init__(self, xs, ys, zs, *args, **kwargs):
-        FancyArrowPatch.__init__(self, (0,0), (0,0), *args, **kwargs)
+        # call parent with dummy 2D start/end
+        super().__init__((0,0), (0,0), *args, **kwargs)
         self._verts3d = xs, ys, zs
-    
+
     def draw(self, renderer):
+        # project 3D endpoints to 2D display coords
         xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
-        self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
-        FancyArrowPatch.draw(self, renderer)
+        x2d, y2d, _ = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.get_proj())
+        # update the 2D arrow positions before drawing
+        self.set_positions((x2d[0], y2d[0]), (x2d[1], y2d[1]))
+        # draw as 2D
+        super().draw(renderer)
+
+    def do_3d_projection(self, renderer=None):
+        """
+        Required by mplot3d.
+        Return a z value for z-ordering. Use average depth.
+        """
+        xs3d, ys3d, zs3d = self._verts3d
+        return float(np.mean(zs3d))
 
 
 class Arrow2D(FancyArrowPatch):
     """
     A 2D arrow used to represent vectors in 2D.
+    xs, ys are [x_start, x_end], [y_start, y_end].
     """
-    
     def __init__(self, xs, ys, *args, **kwargs):
+        super().__init__((xs[0], ys[0]), (xs[1], ys[1]), *args, **kwargs)
         self._verts2d = xs, ys
-        FancyArrowPatch.__init__(self, (xs[0],ys[0]), (xs[1],ys[1]), *args, **kwargs)
-    
+
     def draw(self, renderer):
-        xs3d, ys3d = self._verts2d
-        xs, ys = xs3d, ys3d
-        self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
-        FancyArrowPatch.draw(self, renderer)
+        xs2d, ys2d = self._verts2d
+        self.set_positions((xs2d[0], ys2d[0]), (xs2d[1], ys2d[1]))
+        super().draw(renderer)
+
+
+
 
 
 # HELPER FUNCTIONS
 ################################################################################
- 
+
+def gca3d():
+    """
+    Get current 3D axes if it exists, otherwise create one.
+    Works like plt.gca(), but for 3D.
+    """
+    fig = plt.gcf()
+    # check existing axes
+    for ax in fig.axes:
+        if hasattr(ax, "get_zlim"):  # a 3D axes
+            return ax
+    # none found -> make new one
+    return fig.add_subplot(111, projection='3d')
+
+
 def autoscale_arrows(ax=None):
     """
     Custom auto-scaling method for Arrow3D objects.

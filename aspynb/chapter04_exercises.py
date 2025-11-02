@@ -20,6 +20,7 @@ def cells():
     %matplotlib inline
     import matplotlib.pyplot as mpl
     from util.plot_helpers import plot_augmat, plot_plane, plot_point, plot_line, plot_vec, plot_vecs
+    from util.plot_helpers import autoscale_arrows
     
     Vector = Matrix  # define alias Vector so I don't have to explain this during video
     Point = Vector   # define alias Point for Vector since they're the same thing
@@ -187,10 +188,9 @@ def cells():
     plot_vec(p-p_proj_L1, at=p_proj_L1, color='r')
     
     ax = mpl.gca()
-    mpl.xlim([0,10])
-    mpl.ylim([0,10])
-    ax.set_zlim([0,10])
-    ax.grid(True,which='both')
+    ax.set_xlim([0,10])
+    ax.set_ylim([0,10])
+    ax.set_zlim([0,10]);
 
     '''
     '''

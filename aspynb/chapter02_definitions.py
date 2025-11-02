@@ -124,7 +124,6 @@ def cells():
     w = 2*u
     uhat = u/u.norm()
     
-    fig = mpl.figure()
     plot_vecs(u, w, uhat)
     autoscale_arrows()
 
@@ -146,7 +145,6 @@ def cells():
     '''
     '''
 
-    fig = mpl.figure()
     u = Matrix([1,1])
     v = Matrix([3,0])
     plot_vecs(u,v)
@@ -184,7 +182,6 @@ def cells():
     v = Matrix([1,1,0])
     w = u.cross(v)      # a vector perpendicular to both u and v
     
-    mpl.figure()
     plot_vecs(u, v, u.cross(v))
 
     '''
@@ -192,7 +189,7 @@ def cells():
 
     print('length of cross product', w.norm())
     
-    phi = acos( u.dot(v)/(u.norm()*v.norm()) )
+    phi = acos( u.dot(v) / (u.norm()*v.norm()) )
     
     w.norm() == u.norm()*v.norm()*sin(phi)
 
@@ -213,7 +210,6 @@ def cells():
     '''
     '''
 
-    fig = mpl.figure()
     u = Matrix([1,1])
     v = Matrix([3,0])
     
@@ -221,12 +217,9 @@ def cells():
     
     plot_vecs(u, v, pu_on_v)
     
-    
-    # autoscale_arrows()
     ax = mpl.gca()
     ax.set_xlim([-1,3])
-    ax.set_ylim([-1,3])
-    
+    ax.set_ylim([-1,3]);
 
     '''
     '''
@@ -362,10 +355,6 @@ def cells():
     '''
 
     B.det()
-
-    '''
-    '''
-
 
     '''
     '''
